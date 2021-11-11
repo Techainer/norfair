@@ -7,5 +7,5 @@ setup(
 #    author='',
 #    author_email='',
    packages=['norfair'],  #same as name
-   install_requires=['wheel', 'numpy', 'rich'], #external packages as dependencies
+   install_requires=['numpy', 'rich'], #external packages as dependencies
 )
