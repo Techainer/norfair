@@ -71,7 +71,7 @@ def draw_tracked_objects(
             id_color = color
 
         if draw_points:
-            for point, live in zip(obj.estimate, obj.live_points):
+            for point, live in zip(obj.last_detection.points, obj.live_points):
                 if live:
                     cv2.circle(
                         frame,
@@ -82,7 +82,7 @@ def draw_tracked_objects(
                     )
 
         if id_size > 0:
-            id_draw_position = centroid(obj.estimate[obj.live_points])
+            id_draw_position = centroid(obj.last_detection.points[obj.live_points])
             cv2.putText(
                 frame,
                 str(obj.id),
@@ -106,7 +106,6 @@ def draw_debug_metrics(
     draw_score_threshold: float = 0,
 ):
     """Draw objects with their debug information
-
     It is recommended to set the input variable `objects` to `your_tracker_object.objects`
     so you can also debug objects wich haven't finished initializing, and you get a more
     complete view of what your tracker is doing on each step.

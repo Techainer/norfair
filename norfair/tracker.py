@@ -26,6 +26,8 @@ class Tracker:
         self.hit_inertia_min = hit_inertia_min
         self.hit_inertia_max = hit_inertia_max
         self.filter_setup = filter_setup
+        self.ID = 0
+
         if past_detections_length >= 0:
             self.past_detections_length = past_detections_length
         else:
@@ -86,6 +88,14 @@ class Tracker:
                 )
             )
 
+        results = []
+        for p in self.tracked_objects:
+            if not p.is_initializing:
+                if p.id == None:
+                    p.id = self.ID
+                    self.ID += 1
+                results.append(p)
+        return results
         return [p for p in self.tracked_objects if not p.is_initializing]
 
     def update_objects_in_place(
@@ -159,13 +169,11 @@ class Tracker:
 
     def match_dets_and_objs(self, distance_matrix: np.array):
         """Matches detections with tracked_objects from a distance matrix
-
         I used to match by minimizing the global distances, but found several
         cases in which this was not optimal. So now I just match by starting
         with the global minimum distance and matching the det-obj corresponding
         to that distance, then taking the second minimum, and so on until we
         reach the distance_threshold.
-
         This avoids the the algorithm getting cute with us and matching things
         that shouldn't be matching just for the sake of minimizing the global
         distance, which is what used to happen
@@ -267,7 +275,7 @@ class TrackedObject:
         ):
             self.is_initializing_flag = False
             TrackedObject.count += 1
-            self.id = TrackedObject.count
+            # self.id = TrackedObject.count
         return self.is_initializing_flag
 
     @property
@@ -347,7 +355,6 @@ class TrackedObject:
 
     def conditionally_add_to_past_detections(self, detection):
         """Adds detections into (and pops detections away) from `past_detections`
-
         It does so by keeping a fixed amount of past detections saved into each 
         TrackedObject, while maintaining them distributed uniformly through the object's
         lifetime.
