@@ -6,6 +6,6 @@ setup(
    description='Modified norfair tracker module',
 #    author='',
 #    author_email='',
-   packages=['norfair'],  #same as name
-   install_requires=['rich'], #external packages as dependencies
+   packages=['norfair'],
+   install_requires=['numpy', 'filterpy', 'rich'], #external packages as dependencies
 )
