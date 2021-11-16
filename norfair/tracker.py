@@ -16,6 +16,7 @@ class Tracker:
         hit_inertia_min: int = 10,
         hit_inertia_max: int = 25,
         initialization_delay: Optional[int] = None,
+        initial_hit_count: Optional[int] = None,
         detection_threshold: float = 0,
         point_transience: int = 4,
         filter_setup: "FilterSetup" = FilterSetup(),
@@ -47,6 +48,11 @@ class Tracker:
         else:
             self.initialization_delay = initialization_delay
 
+        if initial_hit_count is None:
+            self.initial_hit_count = self.hit_inertia_max//2
+        else:
+            self.initial_hit_count = initial_hit_count
+
         self.distance_threshold = distance_threshold
         self.detection_threshold = detection_threshold
         self.point_transience = point_transience
@@ -54,6 +60,10 @@ class Tracker:
 
     def update(self, detections: Optional[List["Detection"]] = None, period: int = 1):
         self.period = period
+
+        if detections:
+            for idx, det in enumerate(detections):
+                det.id = idx
 
         # Remove stale trackers and make candidate object real if it has hit inertia
         self.tracked_objects = [o for o in self.tracked_objects if o.has_inertia]
@@ -63,14 +73,24 @@ class Tracker:
             obj.tracker_step()
 
         # Update initialized tracked objects with detections
-        unmatched_detections = self.update_objects_in_place(
+        unmatched_detections, det_obj_pair_1 = self.update_objects_in_place(
             [o for o in self.tracked_objects if not o.is_initializing], detections
         )
 
         # Update not yet initialized tracked objects with yet unmatched detections
-        unmatched_detections = self.update_objects_in_place(
+        unmatched_detections, det_obj_pair_2 = self.update_objects_in_place(
             [o for o in self.tracked_objects if o.is_initializing], unmatched_detections
         )
+
+        det_obj_pair = det_obj_pair_1 + det_obj_pair_2
+        
+        unmatched = []
+        for i in range(len(detections)):
+            if i not in [x[0] for x in det_obj_pair]:
+                unmatched.append((i, None))
+        det_obj_pair = det_obj_pair + unmatched
+
+        det_obj_pair = sorted(det_obj_pair, key=lambda x: x[0])
 
         # Create new tracked objects from remaining unmatched detections
         for detection in unmatched_detections:
@@ -80,6 +100,7 @@ class Tracker:
                     self.hit_inertia_min,
                     self.hit_inertia_max,
                     self.initialization_delay,
+                    self.initial_hit_count,
                     self.detection_threshold,
                     self.period,
                     self.point_transience,
@@ -88,15 +109,12 @@ class Tracker:
                 )
             )
 
-        results = []
         for p in self.tracked_objects:
-            if not p.is_initializing:
-                if p.id == None:
-                    p.id = self.ID
-                    self.ID += 1
-                results.append(p)
-        return results
-        return [p for p in self.tracked_objects if not p.is_initializing]
+            if not p.is_initializing and p.id == None:
+                p.id = self.ID
+                self.ID += 1
+        return [x[1] for x in det_obj_pair]
+        # return [p for p in self.tracked_objects if not p.is_initializing]
 
     def update_objects_in_place(
         self,
@@ -143,6 +161,9 @@ class Tracker:
             matched_det_indices, matched_obj_indices = self.match_dets_and_objs(
                 distance_matrix
             )
+
+            det_obj_pairs = []
+
             if len(matched_det_indices) > 0:
                 unmatched_detections = [
                     d for i, d in enumerate(detections) if i not in matched_det_indices
@@ -158,14 +179,17 @@ class Tracker:
                     if match_distance < self.distance_threshold:
                         matched_object.hit(matched_detection, period=self.period)
                         matched_object.last_distance = match_distance
+                        det_obj_pairs.append((matched_detection.id, matched_object.id))
+
                     else:
                         unmatched_detections.append(matched_detection)
             else:
                 unmatched_detections = detections
         else:
             unmatched_detections = []
+            det_obj_pairs = []
 
-        return unmatched_detections
+        return unmatched_detections, det_obj_pairs
 
     def match_dets_and_objs(self, distance_matrix: np.array):
         """Matches detections with tracked_objects from a distance matrix
@@ -211,6 +235,7 @@ class TrackedObject:
         hit_inertia_min: int,
         hit_inertia_max: int,
         initialization_delay: int,
+        initial_hit_count: int,
         detection_threshold: float,
         period: int,
         point_transience: int,
@@ -228,6 +253,7 @@ class TrackedObject:
         self.hit_inertia_min: int = hit_inertia_min
         self.hit_inertia_max: int = hit_inertia_max
         self.initialization_delay = initialization_delay
+        self.initial_hit_count = initial_hit_count
         self.point_hit_inertia_min: int = math.floor(hit_inertia_min / point_transience)
         self.point_hit_inertia_max: int = math.ceil(hit_inertia_max / point_transience)
         if (self.point_hit_inertia_max - self.point_hit_inertia_min) < period:
@@ -274,7 +300,10 @@ class TrackedObject:
             and self.hit_counter > self.hit_inertia_min + self.initialization_delay
         ):
             self.is_initializing_flag = False
-            TrackedObject.count += 1
+            ## NOTE: Think about using this or not later
+            self.hit_counter = self.initial_hit_count
+            
+            # TrackedObject.count += 1
             # self.id = TrackedObject.count
         return self.is_initializing_flag
 
@@ -374,3 +403,4 @@ class Detection:
         self.points = points
         self.scores = scores
         self.data = data
+        self.ID = None
