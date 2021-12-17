@@ -1,5 +1,5 @@
 import numpy as np
-from filterpy.kalman import KalmanFilter
+from .kalman import KalmanFilter
 
 
 class FilterSetup:
@@ -16,13 +16,13 @@ class FilterSetup:
         filter = KalmanFilter(dim_x=dim_x, dim_z=dim_z)
 
         # State transition matrix (models physics): numpy.array()
-        filter.F = np.eye(dim_x)
+        filter.F = np.eye(dim_x, dtype=np.float64)
         dt = 1  # At each step we update pos with v * dt
 
-        filter.F[:dim_z, dim_z:] = dt * np.eye(dim_z)
+        filter.F[:dim_z, dim_z:] = dt * np.eye(dim_z, dtype=np.float64)
 
         # Measurement function: numpy.array(dim_z, dim_x)
-        filter.H = np.eye(dim_z, dim_x,)
+        filter.H = np.eye(dim_z, dim_x, dtype=np.float64)
 
         # Measurement uncertainty (sensor noise): numpy.array(dim_z, dim_z)
         filter.R *= self.R
@@ -32,7 +32,7 @@ class FilterSetup:
         filter.Q[dim_z:, dim_z:] *= self.Q
 
         # Initial state: numpy.array(dim_x, 1)
-        filter.x[:dim_z] = np.expand_dims(initial_detection.flatten(), 0).T
+        filter.x[:dim_z] = initial_detection.T
 
         # Estimation uncertainty: numpy.array(dim_x, dim_x)
         filter.P[dim_z:, dim_z:] *= self.P
