@@ -2,6 +2,14 @@
 
 ![Build status](https://github.com/tryolabs/norfair/workflows/CI/badge.svg?branch=master) [![DOI](https://zenodo.org/badge/276473370.svg)](https://zenodo.org/badge/latestdoi/276473370)
 
+**NOTE**: This branch contains optimizations for the usecase when there is 1 representative point per detection (i.e. the center of detection box), and use a fixed distance function that is the Euclidean distance between tracker's estimate and that point.
+
+In doing so, I also dropped the use of `past_detections_length`, `distance_function` and the concept of "detection scores" since we are not using them anyway.
+
+The dependencies only include numpy and numba.
+
+---
+
 Norfair is a customizable lightweight Python library for real-time 2D object tracking.
 
 Using Norfair, you can add tracking capabilities to any detector with just a few lines of code.
