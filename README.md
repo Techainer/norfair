@@ -6,6 +6,8 @@ Norfair is a customizable lightweight Python library for real-time 2D object tra
 
 Using Norfair, you can add tracking capabilities to any detector with just a few lines of code.
 
+This fork was maintained by Techainer. It's attempt to assign a track id to each object instead of return a list of new object after tracking.
+
 ## Features
 
 - Any detector expressing its detections as a series of `(x, y)` coordinates can be used with Norfair. This includes detectors performing object detection, pose estimation, and instance segmentation.
