@@ -3,6 +3,7 @@ from typing import Callable, List, Optional, Sequence
 import numpy as np
 
 from .filter import FilterSetup
+from .utils import validate_points
 
 H = np.array(
     [[1., 0., 0., 0.],
