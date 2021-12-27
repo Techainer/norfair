@@ -8,5 +8,5 @@ setup(
    author='Techainer Inc.',
    author_email='admin@techainer.com',
    packages=['norfair'],
-   install_requires=['numpy', 'filterpy', 'rich'], #external packages as dependencies
+   install_requires=['numpy', 'numba'], #external packages as dependencies
 )
