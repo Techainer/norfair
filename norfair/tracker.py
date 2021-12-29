@@ -14,7 +14,6 @@ H = np.array(
 class Tracker:
     def __init__(
         self,
-        distance_function: Callable[["Detection", "TrackedObject"], float],
         distance_threshold: float,
         hit_inertia_min: int = 10,
         hit_inertia_max: int = 25,
@@ -25,7 +24,6 @@ class Tracker:
         filter_setup: "FilterSetup" = FilterSetup(),
     ):
         self.tracked_objects: Sequence["TrackedObject"] = []
-        self.distance_function = distance_function
         self.hit_inertia_min = hit_inertia_min
         self.hit_inertia_max = hit_inertia_max
         self.filter_setup = filter_setup
