@@ -6,7 +6,7 @@ The class in charge of performing the tracking of the detections produced by the
 
 ##### Arguments:
 
-- `distance_function`: Function used by the tracker to determine the distance between newly detected objects and the objects the tracker is currently tracking. This function should take 2 arguments, the first being a detection of type [`Detection`](#detection), and the second a tracked object of type [`TrackedObject`](#trackedobject), and should return a `float` with the distance it calculates.
+
 - `distance_threshold`: Defines what is the maximum distance that can constitute a match. Detections and tracked objects whose distance are above this threshold won't be matched by the tracker.
 - `hit_inertia_min (optional)`: Each tracked objects keeps an internal hit inertia counter which tracks how often it's getting matched to a detection, each time it gets a match this counter goes up, and each time it doesn't it goes down. If it doesn't get any match for a certain amount of frames, and it then gets below the value set by this argument, the object is destroyed. Defaults to `10`.
 - `hit_inertia_max (optional)`: Each tracked objects keeps an internal hit inertia counter which tracks how often it's getting matched to a detection, each time it gets a match this counter goes up, and each time it doesn't it goes down. This argument defines how large this inertia can grow, and therefore defines how long an object can live without getting matched to any detections. Defaults to `25`.
