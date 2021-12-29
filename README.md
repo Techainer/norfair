@@ -10,11 +10,11 @@ The original Norfair is built, used and maintained by [Tryolabs](https://tryolab
 
 ---
 
-This fork was maintained by [Techainer](https://techainer.com/). It's attempt to assign a track id to each object instead of return a list of new object after tracking.
+This fork was maintained by [Techainer](https://techainer.com/). It assigns a track id to each object instead of returning a list of new objects after tracking.
 
-This is optimized for the usecase when there is 1 representative point per detection (i.e. the center of detection box), and use a fixed distance function that is the Euclidean distance between tracker's estimate and that point. Making this up to 10 times faster than the original Norfair implementation.
+This is optimized for the use case when there is 1 representative point per detection (i.e. the center of detection box) and uses a fixed distance function that is the Euclidean distance between the tracker's estimate and that point. Making this up to 10 times faster than the original Norfair implementation.
 
-In doing so, we also dropped the use of `past_detections_length`, `distance_function` and the concept of "detection scores" since we are not using them anyway. Thus make the dependencies only include numpy and numba.
+In doing so, we also dropped the use of `past_detections_length`, `distance_function`, and the concept of "detection scores" since we are not using them anyway. Thus make the dependencies only include `numpy` and `numba`.
 
 
 ## Installation
